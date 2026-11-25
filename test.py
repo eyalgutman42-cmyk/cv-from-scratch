@@ -14,14 +14,14 @@ def convolve2d(f, h):
     # for each pixel (i, j): multiply the k x k patch of f_padded by h, sum, store in g[i, j]
     # remember: convolution = flip the kernel (np.flip(h)) before multiplying
     h_flipped = np.flip(h)
-    for i in range(1, H + 1):
-        for j in range(1, W + 1):
-            window = f_padded[i-1:i+2,j-1:j+2]
-            g[i - 1,j - 1] = (window * h_flipped).sum()           
+    for i in range(pad, H + pad):
+        for j in range(pad, W + pad):
+            window = f_padded[i - pad:i + pad + 1,j - pad:j + pad + 1]
+            g[i - pad,j - pad] = (window * h_flipped).sum()           
     return g
 
 img = cv2.imread("img.jpg", cv2.IMREAD_GRAYSCALE).astype(float)
-h = np.ones((3, 3)) / 9
+h = np.ones((15, 15)) / 225
 
 mine = convolve2d(img, h)
 ref = cv2.filter2D(img, -1, np.flip(h), borderType=cv2.BORDER_CONSTANT)
