@@ -20,11 +20,26 @@ def convolve2d(f, h):
             g[i - pad,j - pad] = (window * h_flipped).sum()           
     return g
 
+def gaussian_kernel(sigma):
+    pad = int(np.ceil(3 * sigma))
+    k = 2 * pad + 1
+    v = np.zeros(k)
+    for i in range(k):
+        v[i] = np.exp(-(((i-pad)**2)/(2 * (sigma ** 2))))
+    h = np.outer(v,v)
+    h /= h.sum()
+    return h
+
+
 img = cv2.imread("img.jpg", cv2.IMREAD_GRAYSCALE).astype(float)
-h = np.ones((15, 15)) / 225
+h = gaussian_kernel(1)
+np.set_printoptions(precision=3, suppress=True)
+print(h)
+print("sum:", h.sum())
 
 mine = convolve2d(img, h)
-ref = cv2.filter2D(img, -1, np.flip(h), borderType=cv2.BORDER_CONSTANT)
+k = h.shape[0]
+ref = cv2.GaussianBlur(img, (k, k), 1, borderType=cv2.BORDER_CONSTANT)
 print("max difference:", np.abs(mine - ref).max())
 
 fig, ax = plt.subplots(1, 2, figsize=(10, 5))
